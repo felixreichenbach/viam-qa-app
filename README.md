@@ -16,6 +16,19 @@ npm run dev
 npm run dev -- --open
 ```
 
+## Add Your Own ML Model
+
+The model is place in the static folder as `model.tflite`. You should be able to simply replace it with another Tflite model usin the same name.
+
+If you have trained a model in the Viam platform, you can use the following URL schema to download your model:
+
+```
+https://app.viam.com/packages/<registry-item-org-id>/<modelname>/ml_model/<version>/<requesting-org-id>
+
+```
+
+Will bring this up with the Viam SDK team to make it much easier.
+
 ## Building
 
 To create a production version of your app:
