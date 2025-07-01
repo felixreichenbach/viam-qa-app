@@ -1,24 +1,15 @@
-# sv
+# Viam Visual Quality Check App
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
+Simple web application which allows taking an image from the camera and run it through an ML model trained in the Viam platform.
+Classifications and score are displayed on screen. Code can easily be changed to object detection.
 
 ## Developing
 
 Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```bash
+pnpm install
+
 npm run dev
 
 # or start the server and open the app in a new browser tab
