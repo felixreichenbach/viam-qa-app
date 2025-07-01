@@ -1,0 +1,14 @@
+diff --git a/package.json b/package.json
+index 1138361f7c9333db77678274718570af3674eb15..9f2acf614b5bd8d471756090762f21a8bf7168df 100644
+--- a/package.json
++++ b/package.json
+@@ -3,9 +3,6 @@
+   "version": "0.0.1-alpha.8",
+   "description": "Tensorflow.js tasks API",
+   "main": "dist/tfjs-tasks.min.js",
+-  "jsnext:main": "dist/tfjs-tasks.esm.js",
+-  "jsdelivr": "dist/tfjs-tasks.min.js",
+-  "unpkg": "dist/tfjs-tasks.min.js",
+   "types": "dist/index.d.ts",
+   "repository": {
+     "type": "git",
