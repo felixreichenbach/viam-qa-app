@@ -5,7 +5,7 @@ Classifications and score are displayed on screen. Code can easily be changed to
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Install the dependencies and start a development server:
 
 ```bash
 pnpm install
