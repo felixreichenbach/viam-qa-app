@@ -36,8 +36,7 @@
 	},
 	"dependencies": {
 		"@tensorflow-models/tasks": "0.0.1-alpha.8",
-		"@viamrobotics/sdk": "^0.45.0",
-		"dotenv": "^17.0.0"
+		"@viamrobotics/sdk": "^0.45.0"
 	},
 	"pnpm": {
 		"patchedDependencies": {

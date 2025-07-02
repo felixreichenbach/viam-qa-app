@@ -3,6 +3,16 @@
 Simple web application which allows taking an image from the camera and run it through an ML model trained in the Viam platform.
 Classifications and score are displayed on screen. Code can easily be changed to object detection.
 
+## Prerequisits
+
+Create a `.env` inside the project root with the following content. You must update the values with your data!
+
+```
+VITE_API_KEY_ID=your_api_key_id_here
+VITE_API_KEY_SECRET=your_api_key_secret_here
+VITE_PART_ID=your_machines_part_id_here
+```
+
 ## Developing
 
 Install the dependencies and start a development server:

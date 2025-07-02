@@ -4,6 +4,7 @@
 	import SnapshotPreview from '$lib/SnapshotPreview.svelte';
 	import { classifyImage } from '$lib/classifier';
 	import Predictions from '$lib/Predictions.svelte';
+	import { getViamClient, uploadData } from '$lib/viamclient';
 
 	let mediaStream: MediaStream | null = null;
 	let videoElement: HTMLVideoElement; // Type as HTMLVideoElement (non-nullable)
@@ -11,14 +12,14 @@
 	let predictions: any[] = []; // To store predictions if needed
 	let error: string | null = null;
 
+	let disabled = false; // Control button state
+
 	// Run classification when capturedSnapshot changes
 	$: if (capturedSnapshot) {
 		const img = new Image();
 		img.onload = () => {
-			console.log('Image loaded for classification:');
 			classifyImage(img)
 				.then((result) => {
-					console.log('Classification result:', result);
 					predictions = result.classes;
 				})
 				.catch((err) => {
@@ -59,28 +60,45 @@
 			console.error('Could not get 2D rendering context for canvas.');
 			return;
 		}
-
 		// Draw the current video frame onto the canvas
 		context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
 		// Get the image data URL
 		capturedSnapshot = canvas.toDataURL('image/png');
-		console.log('Snapshot captured!');
-
 		// Clean up temporary canvas
 		canvas.remove();
 	}
 
 	async function resetSnapshot(): Promise<void> {
-		capturedSnapshot = null; // Reset the captured snapshot
-		predictions = []; // Clear predictions
-		console.log('Snapshot reset.');
+		capturedSnapshot = null;
+		predictions = [];
 	}
 
 	async function acceptSnapshot(): Promise<void> {
-		capturedSnapshot = null; // Reset the captured snapshot
-		predictions = []; // Clear predictions
-		console.log('Snapshot accepted.');
+		disabled = true; // Disable button to prevent multiple uploads
+		getViamClient()
+			.then(() => {
+				// Convert data URL to Uint8Array
+				if (!capturedSnapshot) {
+					throw new Error('No snapshot to upload');
+				}
+				const base64 = capturedSnapshot.split(',')[1];
+				const binary = atob(base64);
+				const uint8Array = new Uint8Array(binary.length);
+				for (let i = 0; i < binary.length; i++) {
+					uint8Array[i] = binary.charCodeAt(i);
+				}
+				// Only provide the classname attribute for each prediction
+				const classnames = predictions.map((p) => p.className);
+				return uploadData(uint8Array, classnames);
+			})
+			.then((id) => {
+				console.log('Data uploaded with ID:', id);
+				resetSnapshot(); // Reset snapshot after upload
+				disabled = false; // Re-enable button after upload
+			})
+			.catch((err) => {
+				error = err;
+			});
 	}
 
 	// Lifecycle: Request camera on mount, stop stream on destroy
@@ -103,8 +121,8 @@
 	{#if capturedSnapshot}
 		<SnapshotPreview imageDataURL={capturedSnapshot} />
 		<div style="display: flex; gap: 10px;">
-			<button on:click={resetSnapshot}> Reset Image </button>
-			<button on:click={acceptSnapshot}> Accept Image </button>
+			<button on:click={resetSnapshot} {disabled}> Reset Image </button>
+			<button on:click={acceptSnapshot} {disabled}> Accept Image </button>
 		</div>
 	{:else}
 		<VideoFeed stream={mediaStream} bind:videoElement />
