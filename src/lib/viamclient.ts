@@ -17,7 +17,7 @@ export async function connect(): Promise<VIAM.ViamClient> {
 	return await VIAM.createViamClient(opts);
 }
 
-export async function uploadData(binaryData: Uint8Array): Promise<string> {
+export async function uploadData(binaryData: Uint8Array, tags: string[]): Promise<string> {
 	if (!viamClient) {
 		// If the client is not initialized, create a new one
 		viamClient = await connect();
@@ -31,6 +31,7 @@ export async function uploadData(binaryData: Uint8Array): Promise<string> {
 		'.jpg',
 		[new Date(), new Date()]
 	);
+	await viamClient.dataClient.addTagsToBinaryDataByIds(tags, [id]);
 	return id;
 }
 

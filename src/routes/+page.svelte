@@ -87,7 +87,9 @@
 				for (let i = 0; i < binary.length; i++) {
 					uint8Array[i] = binary.charCodeAt(i);
 				}
-				return uploadData(uint8Array);
+				// Only provide the classname attribute for each prediction
+				const classnames = predictions.map((p) => p.className);
+				return uploadData(uint8Array, classnames);
 			})
 			.then((id) => {
 				console.log('Data uploaded with ID:', id);
