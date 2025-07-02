@@ -31,7 +31,9 @@
 	// Function to request camera access
 	async function requestCamera(): Promise<void> {
 		try {
-			mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+			mediaStream = await navigator.mediaDevices.getUserMedia({
+				video: { facingMode: 'environment' }
+			});
 			error = null;
 		} catch (err: any) {
 			// Type 'err' as 'any' or 'DOMException' if more specific
