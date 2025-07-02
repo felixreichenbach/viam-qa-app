@@ -4,6 +4,7 @@
 	import SnapshotPreview from '$lib/SnapshotPreview.svelte';
 	import { classifyImage } from '$lib/classifier';
 	import Predictions from '$lib/Predictions.svelte';
+	import '$lib/viamclient';
 
 	let mediaStream: MediaStream | null = null;
 	let videoElement: HTMLVideoElement; // Type as HTMLVideoElement (non-nullable)
