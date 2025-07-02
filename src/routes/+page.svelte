@@ -12,6 +12,8 @@
 	let predictions: any[] = []; // To store predictions if needed
 	let error: string | null = null;
 
+	let disabled = false; // Control button state
+
 	// Run classification when capturedSnapshot changes
 	$: if (capturedSnapshot) {
 		const img = new Image();
@@ -72,6 +74,7 @@
 	}
 
 	async function acceptSnapshot(): Promise<void> {
+		disabled = true; // Disable button to prevent multiple uploads
 		getViamClient()
 			.then(() => {
 				// Convert data URL to Uint8Array
@@ -89,6 +92,7 @@
 			.then((id) => {
 				console.log('Data uploaded with ID:', id);
 				resetSnapshot(); // Reset snapshot after upload
+				disabled = false; // Re-enable button after upload
 			})
 			.catch((err) => {
 				error = err;
@@ -115,8 +119,8 @@
 	{#if capturedSnapshot}
 		<SnapshotPreview imageDataURL={capturedSnapshot} />
 		<div style="display: flex; gap: 10px;">
-			<button on:click={resetSnapshot}> Reset Image </button>
-			<button on:click={acceptSnapshot}> Accept Image </button>
+			<button on:click={resetSnapshot} {disabled}> Reset Image </button>
+			<button on:click={acceptSnapshot} {disabled}> Accept Image </button>
 		</div>
 	{:else}
 		<VideoFeed stream={mediaStream} bind:videoElement />
