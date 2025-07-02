@@ -8,9 +8,9 @@ Classifications and score are displayed on screen. Code can easily be changed to
 Create a `.env` inside the project root with the following content. You must update the values with your data!
 
 ```
-VITE_ORG_ID=your_organization_id_here
 VITE_API_KEY_ID=your_api_key_id_here
 VITE_API_KEY_SECRET=your_api_key_secret_here
+VITE_PART_ID=your_machines_part_id_here
 ```
 
 ## Developing

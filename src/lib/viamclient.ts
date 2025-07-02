@@ -1,10 +1,12 @@
 import * as VIAM from '@viamrobotics/sdk';
 
-const ORG_ID = import.meta.env.VITE_ORG_ID;
 const API_KEY_ID = import.meta.env.VITE_API_KEY_ID;
 const API_KEY_SECRET = import.meta.env.VITE_API_KEY_SECRET;
+const PART_ID = import.meta.env.VITE_PART_ID;
 
-async function connect(): Promise<VIAM.ViamClient> {
+let viamClient: VIAM.ViamClient | null = null;
+
+export async function connect(): Promise<VIAM.ViamClient> {
 	const opts: VIAM.ViamClientOptions = {
 		credentials: {
 			type: 'api-key',
@@ -12,28 +14,30 @@ async function connect(): Promise<VIAM.ViamClient> {
 			payload: API_KEY_SECRET
 		}
 	};
-
-	const client = await VIAM.createViamClient(opts);
-
-	return client;
+	return await VIAM.createViamClient(opts);
 }
 
-async function query(client: VIAM.ViamClient) {
-	try {
-		const dataList = await client.dataClient.tabularDataBySQL(
-			ORG_ID,
-			'select * from readings limit 5'
-		);
-		return dataList;
-	} finally {
+export async function uploadData(binaryData: Uint8Array): Promise<string> {
+	if (!viamClient) {
+		// If the client is not initialized, create a new one
+		viamClient = await connect();
 	}
+	const id = await viamClient.dataClient.binaryDataCaptureUpload(
+		binaryData,
+		PART_ID,
+		'rdk:component:camera',
+		'camera',
+		'ReadImage',
+		'.jpg',
+		[new Date(), new Date()]
+	);
+	return id;
 }
 
-let client: VIAM.ViamClient;
-try {
-	client = await connect();
-	const result = await query(client);
-	console.log(result);
-} catch (error) {
-	console.error(error);
+export async function getViamClient(): Promise<VIAM.ViamClient> {
+	if (!viamClient) {
+		// If the client is not initialized, create a new one
+		viamClient = await connect();
+	}
+	return viamClient as VIAM.ViamClient;
 }
