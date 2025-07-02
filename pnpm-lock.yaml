@@ -19,9 +19,6 @@ importers:
       '@viamrobotics/sdk':
         specifier: ^0.45.0
         version: 0.45.0
-      dotenv:
-        specifier: ^17.0.0
-        version: 17.0.0
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.5
@@ -765,10 +762,6 @@ packages:
 
   devalue@5.1.1:
     resolution: {integrity: sha512-maua5KUiapvEwiEAe+XnlZ3Rh0GD+qI1J/nb9vrJc3muPXvcF/8gXYTWF76+5DAqHyDUtOIImEuo0YKE9mshVw==}
-
-  dotenv@17.0.0:
-    resolution: {integrity: sha512-A0BJ5lrpJVSfnMMXjmeO0xUnoxqsBHWCoqqTnGwGYVdnctqXXUEhJOO7LxmgxJon9tEZFGpe0xPRX0h2v3AANQ==}
-    engines: {node: '>=12'}
 
   enhanced-resolve@5.18.2:
     resolution: {integrity: sha512-6Jw4sE1maoRJo3q8MsSIn2onJFbLTOjY9hlx4DZXmOKvLRd1Ok2kXmAGXaafL2+ijsJZ1ClYbl/pmqr9+k4iUQ==}
@@ -1975,8 +1968,6 @@ snapshots:
   detect-libc@2.0.4: {}
 
   devalue@5.1.1: {}
-
-  dotenv@17.0.0: {}
 
   enhanced-resolve@5.18.2:
     dependencies:
