@@ -29,7 +29,8 @@ export async function uploadData(binaryData: Uint8Array, tags: string[]): Promis
 		'camera',
 		'ReadImage',
 		'.jpg',
-		[new Date(), new Date()]
+		[new Date(), new Date()],
+		(tags = ['qa-app'])
 	);
 	await viamClient.dataClient.addTagsToBinaryDataByIds(tags, [id]);
 	return id;
