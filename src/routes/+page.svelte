@@ -3,13 +3,13 @@
 	import VideoFeed from '$lib/VideoFeed.svelte';
 	import SnapshotPreview from '$lib/SnapshotPreview.svelte';
 	import { classifyImage } from '$lib/classifier';
-	import Predictions from '$lib/Predictions.svelte';
+	import Predictions from '$lib/Classifications.svelte';
 	import { getViamClient, uploadData } from '$lib/viamclient';
 
 	let mediaStream: MediaStream | null = null;
 	let videoElement: HTMLVideoElement; // Type as HTMLVideoElement (non-nullable)
 	let capturedSnapshot: string | null = null; // Stores the data URL of the captured image
-	let predictions: any[] = []; // To store predictions if needed
+	let classifications: any[] = []; // To store predictions if needed
 	let error: string | null = null;
 
 	let disabled = false; // Control button state
@@ -20,7 +20,7 @@
 		img.onload = () => {
 			classifyImage(img)
 				.then((result) => {
-					predictions = result.classes;
+					classifications = result.classes;
 				})
 				.catch((err) => {
 					console.error('Error classifying image:', err);
@@ -70,7 +70,7 @@
 
 	async function resetSnapshot(): Promise<void> {
 		capturedSnapshot = null;
-		predictions = [];
+		classifications = [];
 	}
 
 	async function acceptSnapshot(): Promise<void> {
@@ -88,7 +88,7 @@
 					uint8Array[i] = binary.charCodeAt(i);
 				}
 				// Only provide the classname attribute for each prediction
-				const classnames = predictions.map((p) => p.className);
+				const classnames = classifications.map((p) => p.className);
 				return uploadData(uint8Array, classnames);
 			})
 			.then((id) => {
@@ -99,6 +99,18 @@
 			.catch((err) => {
 				error = err;
 			});
+	}
+
+	function scoreOK(classifications: any[]): boolean {
+		const ok = classifications.find((c) => c.className === 'OK');
+		const nok = classifications.find((c) => c.className === 'NOK');
+		const unknown = classifications.find((c) => c.className === 'VIAM_UNKNOWN');
+
+		const okScore = ok ? ok.score : 0;
+		const nokScore = nok ? nok.score : 0;
+		const unknownScore = unknown ? unknown.score : 0;
+
+		return okScore > nokScore && unknownScore < 0.5;
 	}
 
 	// Lifecycle: Request camera on mount, stop stream on destroy
@@ -119,7 +131,13 @@
 	{/if}
 
 	{#if capturedSnapshot}
-		<SnapshotPreview imageDataURL={capturedSnapshot} />
+		<div
+			style="border: 4px solid {scoreOK(classifications)
+				? 'green'
+				: 'red'}; border-radius: 8px; display: inline-block; padding: 4px;"
+		>
+			<SnapshotPreview imageDataURL={capturedSnapshot} />
+		</div>
 		<div style="display: flex; gap: 10px;">
 			<button on:click={resetSnapshot} {disabled}> Reset Image </button>
 			<button on:click={acceptSnapshot} {disabled}> Accept Image </button>
@@ -129,8 +147,8 @@
 		<button on:click={captureSnapshot}> Capture Image </button>
 	{/if}
 
-	{#if predictions.length > 0}
-		<Predictions {predictions}></Predictions>
+	{#if classifications.length > 0}
+		<Predictions {classifications}></Predictions>
 	{/if}
 </main>
 
