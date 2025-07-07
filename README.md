@@ -2,6 +2,9 @@
 
 Simple web application which allows taking an image from the camera and run it through an ML model trained in the Viam platform.
 Classifications and score are displayed on screen. Code can easily be changed to object detection.
+<div align="center">
+<img src="media/ui.png" alt="user interface" width="300"/>
+</div>
 
 ## Prerequisits
 
