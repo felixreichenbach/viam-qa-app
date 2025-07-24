@@ -1,0 +1,17 @@
+{
+  "$schema": "https://dl.viam.dev/module.schema.json",
+  "module_id": "technogym:qa-app",
+  "visibility": "public",
+  "url": "https://github.com/felixreichenbach/viam-qa-app",
+  "description": "An example quality assurance application using a Tflite model.",
+  "applications": [
+    {
+      "name": "qa-app",
+      "type": "single_machine",
+      "entrypoint": "build/index.html",
+      "fragmentIds": [
+        "02f72bda-aa3d-4d6c-9a4b-96b35b93e361"
+      ]
+    }
+  ]
+}
