@@ -13,6 +13,7 @@
 	let error: string | null = null;
 
 	let disabled = false; // Control button state
+	let user_classification: string = '';
 
 	// Run classification when capturedSnapshot changes
 	$: if (capturedSnapshot) {
@@ -71,9 +72,15 @@
 	async function resetSnapshot(): Promise<void> {
 		capturedSnapshot = null;
 		classifications = [];
+		user_classification = '';
 	}
 
 	async function acceptSnapshot(): Promise<void> {
+		if (user_classification === '') {
+			error = 'Please classify the image a classification before uploading.';
+			return;
+		}
+		error = null;
 		disabled = true; // Disable button to prevent multiple uploads
 		getViamClient()
 			.then(() => {
@@ -88,8 +95,8 @@
 					uint8Array[i] = binary.charCodeAt(i);
 				}
 				// Only provide the classname attribute for each prediction
-				const classnames = classifications.map((p) => p.className);
-				return uploadData(uint8Array, classnames);
+				let classnames = classifications.map((p) => p.className);
+				return uploadData(uint8Array, [user_classification]);
 			})
 			.then((id) => {
 				console.log('Data uploaded with ID:', id);
@@ -139,8 +146,28 @@
 			<SnapshotPreview imageDataURL={capturedSnapshot} />
 		</div>
 		<div style="display: flex; gap: 10px;">
-			<button on:click={resetSnapshot} {disabled}> Reset Image </button>
+			<button
+				on:click={() => {
+					user_classification = 'USER_OK';
+				}}
+				{disabled}
+				class="classification-btn {user_classification === 'USER_OK' ? 'selected-ok' : ''}"
+			>
+				OK
+			</button>
+			<button
+				on:click={() => {
+					user_classification = 'USER_NOK';
+				}}
+				{disabled}
+				class="classification-btn {user_classification === 'USER_NOK' ? 'selected-nok' : ''}"
+			>
+				NOK
+			</button>
+		</div>
+		<div style="display: flex; gap: 10px;">
 			<button on:click={acceptSnapshot} {disabled}> Accept Image </button>
+			<button on:click={resetSnapshot} {disabled}> Reset Image </button>
 		</div>
 	{:else}
 		<VideoFeed stream={mediaStream} bind:videoElement />
@@ -175,5 +202,14 @@
 	button:disabled {
 		background-color: #cccccc;
 		cursor: not-allowed;
+	}
+	.classification-btn {
+		background-color: #007bff;
+	}
+	.classification-btn.selected-ok {
+		background-color: green;
+	}
+	.classification-btn.selected-nok {
+		background-color: red;
 	}
 </style>
