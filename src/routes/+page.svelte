@@ -164,10 +164,10 @@
 			>
 				NOK
 			</button>
-			<button on:click={resetSnapshot} {disabled}> Reset Image </button>
 		</div>
 		<div style="display: flex; gap: 10px;">
 			<button on:click={acceptSnapshot} {disabled}> Accept Image </button>
+			<button on:click={resetSnapshot} {disabled}> Reset Image </button>
 		</div>
 	{:else}
 		<VideoFeed stream={mediaStream} bind:videoElement />
