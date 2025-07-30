@@ -18,6 +18,9 @@ VITE_PART_ID=your_machines_part_id_here
 
 ## Developing
 
+> [!WARNING]  
+> The TFlite Javascript library has a bug. You must therefore install the dependencies with **PNPM** install!
+
 Install the dependencies and start a development server:
 
 ```bash
