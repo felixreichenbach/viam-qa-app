@@ -98,7 +98,7 @@
 				let tags = [];
 				if (classifications.length > 0) {
 					const top = classifications.reduce((a, b) => (a.score > b.score ? a : b));
-					tags.push(top.className);
+					tags.push('MODEL_' + top.className);
 				}
 				tags.push(user_classification);
 				return uploadData(uint8Array, tags);
