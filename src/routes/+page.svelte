@@ -95,8 +95,13 @@
 					uint8Array[i] = binary.charCodeAt(i);
 				}
 				// Only provide the classname attribute for each prediction
-				let classnames = classifications.map((p) => p.className);
-				return uploadData(uint8Array, [user_classification]);
+				let tags = [];
+				if (classifications.length > 0) {
+					const top = classifications.reduce((a, b) => (a.score > b.score ? a : b));
+					tags.push('MODEL_' + top.className);
+				}
+				tags.push(user_classification);
+				return uploadData(uint8Array, tags);
 			})
 			.then((id) => {
 				console.log('Data uploaded with ID:', id);
