@@ -95,7 +95,11 @@
 					uint8Array[i] = binary.charCodeAt(i);
 				}
 				// Only provide the classname attribute for each prediction
-				let tags = classifications.map((p) => p.className);
+				let tags = [];
+				if (classifications.length > 0) {
+					const top = classifications.reduce((a, b) => (a.score > b.score ? a : b));
+					tags.push(top.className);
+				}
 				tags.push(user_classification);
 				return uploadData(uint8Array, tags);
 			})
