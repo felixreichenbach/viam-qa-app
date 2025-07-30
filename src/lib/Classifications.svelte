@@ -8,7 +8,7 @@
 
 	// Map of className to display name
 	const nameMap: Record<string, string> = {
-		VIAM_UNKNOWN: 'Not seen before',
+		VIAM_UNKNOWN: 'Viam Unknown',
 		NOK: 'Not OK',
 		OK: 'OK'
 	};

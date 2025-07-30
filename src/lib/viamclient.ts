@@ -22,6 +22,8 @@ export async function uploadData(binaryData: Uint8Array, tags: string[]): Promis
 		// If the client is not initialized, create a new one
 		viamClient = await connect();
 	}
+
+	tags.push('qa-app');
 	const id = await viamClient.dataClient.binaryDataCaptureUpload(
 		binaryData,
 		PART_ID,
@@ -30,7 +32,7 @@ export async function uploadData(binaryData: Uint8Array, tags: string[]): Promis
 		'ReadImage',
 		'.jpg',
 		[new Date(), new Date()],
-		(tags = ['qa-app'])
+		tags
 	);
 	await viamClient.dataClient.addTagsToBinaryDataByIds(tags, [id]);
 	return id;
