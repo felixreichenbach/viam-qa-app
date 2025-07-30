@@ -18,6 +18,9 @@ VITE_PART_ID=your_machines_part_id_here
 
 ## Developing
 
+> [!WARNING]  
+> The TFlite Javascript library has a bug. You must therefore install the dependencies with **PNPM** install!
+
 Install the dependencies and start a development server:
 
 ```bash
@@ -42,6 +45,13 @@ https://app.viam.com/packages/<registry-item-org-id>/<modelname>/ml_model/<versi
 
 Will bring this up with the Viam SDK team to make it much easier.
 
+### ML Model Validation
+
+There is currently now efficient way of validating an ML model within the Viam platform.
+This Python sript will help you do this in the meantime:
+
+[Model Validation Readme.md](./model_validation/README.md)
+
 ## Building
 
 To create a production version of your app:
@@ -53,3 +63,5 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+
