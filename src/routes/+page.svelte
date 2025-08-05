@@ -21,8 +21,8 @@
 		img.onload = () => {
 			classifyImage(img)
 				.then((result) => {
+					console.log('Classifications:', result.classes);
 					classifications = result.classes;
-					console.log('Classifications:', classifications);
 				})
 				.catch((err) => {
 					console.error('Error classifying image:', err);
