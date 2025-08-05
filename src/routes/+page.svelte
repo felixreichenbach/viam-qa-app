@@ -3,33 +3,22 @@
 	import VideoFeed from '$lib/VideoFeed.svelte';
 	import SnapshotPreview from '$lib/SnapshotPreview.svelte';
 	import { classifyImage } from '$lib/classifier';
-	import Predictions from '$lib/Classifications.svelte';
 	import { getViamClient, uploadData } from '$lib/viamclient';
 
 	let mediaStream: MediaStream | null = null;
 	let videoElement: HTMLVideoElement; // Type as HTMLVideoElement (non-nullable)
 	let capturedSnapshot: string | null = null; // Stores the data URL of the captured image
-	let classifications: any[] = []; // To store predictions if needed
 	let error: string | null = null;
+
+	// Define the interface for classification results
+	interface Class {
+		className: string;
+		score: number;
+	}
+	let classifications: Class[] = [];
 
 	let disabled = false; // Control button state
 	let user_classification: string = '';
-
-	// Run classification when capturedSnapshot changes
-	$: if (capturedSnapshot) {
-		const img = new Image();
-		img.onload = () => {
-			classifyImage(img)
-				.then((result) => {
-					console.log('Classifications:', result.classes);
-					classifications = result.classes;
-				})
-				.catch((err) => {
-					console.error('Error classifying image:', err);
-				});
-		};
-		img.src = capturedSnapshot; // Set the source to trigger loading
-	}
 
 	// Function to request camera access
 	async function requestCamera(): Promise<void> {
@@ -70,6 +59,22 @@
 		canvas.remove();
 	}
 
+	// Run classification when capturedSnapshot changes
+	$: if (capturedSnapshot) {
+		const img = new Image();
+		img.onload = () => {
+			classifyImage(img)
+				.then((result) => {
+					console.log('Classifications:', result.classes);
+					classifications = result.classes;
+				})
+				.catch((err) => {
+					console.error('Error classifying image:', err);
+				});
+		};
+		img.src = capturedSnapshot; // Set the source to trigger loading
+	}
+
 	async function resetSnapshot(): Promise<void> {
 		capturedSnapshot = null;
 		classifications = [];
@@ -95,14 +100,7 @@
 				for (let i = 0; i < binary.length; i++) {
 					uint8Array[i] = binary.charCodeAt(i);
 				}
-				// Only provide the classname attribute for each prediction
-				let tags = [];
-				if (classifications.length > 0) {
-					const top = classifications.reduce((a, b) => (a.score > b.score ? a : b));
-					tags.push('MODEL_' + top.className);
-				}
-				tags.push(user_classification);
-				return uploadData(uint8Array, tags);
+				return uploadData(uint8Array, classifications, user_classification);
 			})
 			.then((id) => {
 				console.log('Data uploaded with ID:', id);
