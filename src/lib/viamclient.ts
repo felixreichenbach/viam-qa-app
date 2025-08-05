@@ -39,10 +39,6 @@ export async function uploadData(
 		viamClient = await connect();
 	}
 
-	console.log('Uploading data with tags:', tags);
-	console.log(classifications);
-	console.log(user_classification);
-
 	const id = await viamClient.dataClient.binaryDataCaptureUpload(
 		binaryData,
 		PART_ID,
