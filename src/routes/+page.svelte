@@ -21,6 +21,7 @@
 		img.onload = () => {
 			classifyImage(img)
 				.then((result) => {
+					console.log('Classifications:', result.classes);
 					classifications = result.classes;
 				})
 				.catch((err) => {
@@ -178,10 +179,11 @@
 		<VideoFeed stream={mediaStream} bind:videoElement />
 		<button on:click={captureSnapshot}> Capture Image </button>
 	{/if}
-
+	<!--Uncomment if you want to display classifications
 	{#if classifications.length > 0}
 		<Predictions {classifications}></Predictions>
 	{/if}
+	-->
 </main>
 
 <style>
