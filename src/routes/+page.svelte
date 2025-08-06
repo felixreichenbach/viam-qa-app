@@ -19,6 +19,7 @@
 
 	let disabled = false; // Control button state
 	let user_classification: string = '';
+	let zoomLevel = 1; // Zoom level for the camera (1 = 100%, 2 = 200%, etc.)
 
 	// Function to request camera access
 	async function requestCamera(): Promise<void> {
@@ -174,8 +175,15 @@
 			<button on:click={resetSnapshot} {disabled}> Reset Image </button>
 		</div>
 	{:else}
-		<VideoFeed stream={mediaStream} bind:videoElement />
-		<button on:click={captureSnapshot}> Capture Image </button>
+		<div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+			<label style="display: flex; align-items: center; gap: 10px;">
+				<span>Zoom:</span>
+				<input type="range" min="1" max="3" step="0.1" bind:value={zoomLevel} class="zoom-slider" />
+				<span>{Math.round(zoomLevel * 100)}%</span>
+			</label>
+			<VideoFeed stream={mediaStream} bind:videoElement {zoomLevel} />
+			<button on:click={captureSnapshot}> Capture Image </button>
+		</div>
 	{/if}
 	<!--Uncomment if you want to display classifications
 	{#if classifications.length > 0}
@@ -216,5 +224,28 @@
 	}
 	.classification-btn.selected-nok {
 		background-color: red;
+	}
+	.zoom-slider {
+		width: 200px;
+		height: 5px;
+		border-radius: 5px;
+		background: #ddd;
+		outline: none;
+	}
+	.zoom-slider::-webkit-slider-thumb {
+		appearance: none;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #007bff;
+		cursor: pointer;
+	}
+	.zoom-slider::-moz-range-thumb {
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: #007bff;
+		cursor: pointer;
+		border: none;
 	}
 </style>
