@@ -20,13 +20,4 @@
 		height: auto;
 		border: 1px solid #ddd;
 	}
-	.download-link {
-		display: inline-block;
-		margin-top: 10px;
-		padding: 8px 15px;
-		background-color: #28a745;
-		color: white;
-		text-decoration: none;
-		border-radius: 5px;
-	}
 </style>

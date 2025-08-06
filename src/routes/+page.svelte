@@ -8,6 +8,7 @@
 	let mediaStream: MediaStream | null = null;
 	let videoElement: HTMLVideoElement; // Type as HTMLVideoElement (non-nullable)
 	let capturedSnapshot: string | null = null; // Stores the data URL of the captured image
+	let imageCapture: ImageCapture | null = null;
 	let error: string | null = null;
 
 	// Define the interface for classification results
@@ -26,6 +27,8 @@
 			mediaStream = await navigator.mediaDevices.getUserMedia({
 				video: { facingMode: 'environment' }
 			});
+			const track = mediaStream.getVideoTracks()[0];
+			imageCapture = new ImageCapture(track);
 			error = null;
 		} catch (err: any) {
 			// Type 'err' as 'any' or 'DOMException' if more specific
@@ -53,6 +56,30 @@
 		}
 		// Draw the current video frame onto the canvas
 		context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+		// Get the image data URL
+		capturedSnapshot = canvas.toDataURL('image/png');
+		// Clean up temporary canvas
+		canvas.remove();
+	}
+
+	async function onTakePhotoButtonClick() {
+		if (!imageCapture) {
+			console.warn('ImageCapture is not initialized.');
+			return;
+		}
+		const blob = await imageCapture.takePhoto();
+		const imageBitmap = await createImageBitmap(blob);
+		// Create a temporary canvas
+		const canvas = document.createElement('canvas');
+		canvas.width = imageBitmap.width;
+		canvas.height = imageBitmap.height;
+		const context = canvas.getContext('2d');
+		if (!context) {
+			console.error('Could not get 2D rendering context for canvas.');
+			return;
+		}
+		// Draw the current video frame onto the canvas
+		context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
 		// Get the image data URL
 		capturedSnapshot = canvas.toDataURL('image/png');
 		// Clean up temporary canvas
