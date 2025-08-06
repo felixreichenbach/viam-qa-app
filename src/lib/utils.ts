@@ -25,3 +25,20 @@ export function rotateImageCounterClock90(image: HTMLImageElement): HTMLCanvasEl
 	ctx.restore();
 	return canvas;
 }
+
+export async function getSnapshot(blob: Blob): Promise<string> {
+	const imageBitmap = await createImageBitmap(blob);
+	// Create a temporary canvas
+	const canvas = document.createElement('canvas');
+	canvas.width = imageBitmap.width;
+	canvas.height = imageBitmap.height;
+	const context = canvas.getContext('2d');
+	if (!context) {
+		console.error('Could not get 2D rendering context for canvas.');
+		throw new Error('Could not get 2D rendering context for canvas.');
+	}
+	context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
+	const capturedSnapshot = canvas.toDataURL('image/png');
+	canvas.remove();
+	return capturedSnapshot;
+}

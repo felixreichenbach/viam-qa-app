@@ -4,10 +4,11 @@
 	import SnapshotPreview from '$lib/SnapshotPreview.svelte';
 	import { classifyImage } from '$lib/classifier';
 	import { getViamClient, uploadData } from '$lib/viamclient';
+	import { getSnapshot } from '$lib/utils';
 
 	let mediaStream: MediaStream | null = null;
 	let videoElement: HTMLVideoElement; // Type as HTMLVideoElement (non-nullable)
-	let capturedSnapshot: string | null = null; // Stores the data URL of the captured image
+	let capturedSnapshot: string = ''; // Stores the data URL of the captured image
 	let imageCapture: ImageCapture | null = null;
 	let error: string | null = null;
 
@@ -37,53 +38,18 @@
 		}
 	}
 
-	// CORE CONTROL FUNCTION: Captures a snapshot from the video stream
-	async function captureSnapshot(): Promise<void> {
-		if (!videoElement) {
-			console.warn('Video element not available yet.');
-			return;
-		}
-
-		// Create a temporary canvas
-		const canvas = document.createElement('canvas');
-		canvas.width = videoElement.videoWidth;
-		canvas.height = videoElement.videoHeight;
-		const context = canvas.getContext('2d');
-
-		if (!context) {
-			console.error('Could not get 2D rendering context for canvas.');
-			return;
-		}
-		// Draw the current video frame onto the canvas
-		context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-		// Get the image data URL
-		capturedSnapshot = canvas.toDataURL('image/png');
-		// Clean up temporary canvas
-		canvas.remove();
-	}
-
 	async function onTakePhotoButtonClick() {
 		if (!imageCapture) {
 			console.warn('ImageCapture is not initialized.');
 			return;
 		}
-		const blob = await imageCapture.takePhoto();
-		const imageBitmap = await createImageBitmap(blob);
-		// Create a temporary canvas
-		const canvas = document.createElement('canvas');
-		canvas.width = imageBitmap.width;
-		canvas.height = imageBitmap.height;
-		const context = canvas.getContext('2d');
-		if (!context) {
-			console.error('Could not get 2D rendering context for canvas.');
-			return;
+		try {
+			const blob = await imageCapture.takePhoto();
+			capturedSnapshot = await getSnapshot(blob);
+		} catch (err) {
+			console.error('Error capturing photo:', err);
+			error = 'Could not capture photo. Please try again.';
 		}
-		// Draw the current video frame onto the canvas
-		context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
-		// Get the image data URL
-		capturedSnapshot = canvas.toDataURL('image/png');
-		// Clean up temporary canvas
-		canvas.remove();
 	}
 
 	// Run classification when capturedSnapshot changes
@@ -103,7 +69,7 @@
 	}
 
 	async function resetSnapshot(): Promise<void> {
-		capturedSnapshot = null;
+		capturedSnapshot = '';
 		classifications = [];
 		user_classification = '';
 	}
@@ -202,7 +168,7 @@
 		</div>
 	{:else}
 		<VideoFeed stream={mediaStream} bind:videoElement />
-		<button on:click={captureSnapshot}> Capture Image </button>
+		<button on:click={onTakePhotoButtonClick}> Capture Image </button>
 	{/if}
 	<!--Uncomment if you want to display classifications
 	{#if classifications.length > 0}
