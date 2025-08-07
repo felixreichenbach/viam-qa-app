@@ -17,6 +17,7 @@ export async function classifyImage(image: HTMLImageElement) {
 		throw new Error('Model not loaded');
 	}
 	const preprocessed = resizeImageTo256(image);
+	console.log('Preprocessed image size:', preprocessed.width, 'x', preprocessed.height);
 	const result = await model.predict(preprocessed);
 	return result;
 }
