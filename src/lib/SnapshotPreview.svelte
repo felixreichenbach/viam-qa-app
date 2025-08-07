@@ -5,7 +5,6 @@
 <div class="preview-container">
 	{#if imageDataURL}
 		<img src={imageDataURL} alt="Captured Snapshot" class="snapshot-image" />
-		<!-- <a href={imageDataURL} download="snapshot.png" class="download-link">Download Snapshot</a> -->
 	{:else}
 		<p>No snapshot captured yet.</p>
 	{/if}

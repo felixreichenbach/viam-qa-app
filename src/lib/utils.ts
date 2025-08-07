@@ -10,6 +10,29 @@ export function resizeImageTo256(image: HTMLImageElement): HTMLCanvasElement {
 	return canvas;
 }
 
+function cropCenter(image: ImageBitmap, targetSize: number = 512): HTMLCanvasElement {
+	const canvas = document.createElement('canvas');
+	canvas.width = targetSize;
+	canvas.height = targetSize;
+	const ctx = canvas.getContext('2d');
+	if (!ctx) {
+		throw new Error('Could not get canvas context');
+	}
+
+	// Calculate the center crop coordinates from the source image
+	const x = (image.width - targetSize) / 2;
+	const y = (image.height - targetSize) / 2;
+
+	console.log('Crop debug:', {
+		originalSize: `${image.width}x${image.height}`,
+		cropSize: targetSize,
+		cropPosition: `${x}, ${y}`
+	});
+
+	ctx.drawImage(image, x, y, targetSize, targetSize, 0, 0, targetSize, targetSize);
+	return canvas;
+}
+
 export function rotateImageCounterClock90(image: HTMLImageElement): HTMLCanvasElement {
 	const canvas = document.createElement('canvas');
 	canvas.width = image.height;
@@ -38,7 +61,7 @@ export async function getSnapshot(blob: Blob): Promise<string> {
 		throw new Error('Could not get 2D rendering context for canvas.');
 	}
 	context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
-	const capturedSnapshot = canvas.toDataURL('image/png');
+	const snapshot = canvas.toDataURL('image/png');
 	canvas.remove();
-	return capturedSnapshot;
+	return snapshot;
 }

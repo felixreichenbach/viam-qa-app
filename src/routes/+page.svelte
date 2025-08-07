@@ -2,17 +2,16 @@
 	import { onMount, onDestroy } from 'svelte';
 	import VideoFeed from '$lib/VideoFeed.svelte';
 	import SnapshotPreview from '$lib/SnapshotPreview.svelte';
-	import { classifyImage } from '$lib/classifier';
+	import { classifyImage, loadClassifier } from '$lib/classifier';
 	import { getViamClient, uploadData } from '$lib/viamclient';
 	import { getSnapshot } from '$lib/utils';
 
 	let mediaStream: MediaStream | null = null;
-	let videoElement: HTMLVideoElement; // Type as HTMLVideoElement (non-nullable)
-	let capturedSnapshot: string = ''; // Stores the data URL of the captured image
+	let videoElement: HTMLVideoElement;
+	let capturedSnapshot: string = '';
 	let imageCapture: ImageCapture | null = null;
 	let error: string | null = null;
 
-	// Define the interface for classification results
 	interface Class {
 		className: string;
 		score: number;
@@ -22,7 +21,6 @@
 	let disabled = false; // Control button state
 	let user_classification: string = '';
 
-	// Function to request camera access
 	async function requestCamera(): Promise<void> {
 		try {
 			mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -32,7 +30,6 @@
 			imageCapture = new ImageCapture(track);
 			error = null;
 		} catch (err: any) {
-			// Type 'err' as 'any' or 'DOMException' if more specific
 			console.error('Error accessing camera:', err);
 			error = 'Could not access camera. Please check permissions.';
 		}
@@ -65,7 +62,7 @@
 					console.error('Error classifying image:', err);
 				});
 		};
-		img.src = capturedSnapshot; // Set the source to trigger loading
+		img.src = capturedSnapshot;
 	}
 
 	async function resetSnapshot(): Promise<void> {
@@ -83,7 +80,6 @@
 		disabled = true; // Disable button to prevent multiple uploads
 		getViamClient()
 			.then(() => {
-				// Convert data URL to Uint8Array
 				if (!capturedSnapshot) {
 					throw new Error('No snapshot to upload');
 				}
@@ -97,8 +93,8 @@
 			})
 			.then((id) => {
 				console.log('Data uploaded with ID:', id);
-				resetSnapshot(); // Reset snapshot after upload
-				disabled = false; // Re-enable button after upload
+				resetSnapshot();
+				disabled = false;
 			})
 			.catch((err) => {
 				error = err;
@@ -117,8 +113,8 @@
 		return okScore > nokScore && unknownScore < 0.5;
 	}
 
-	// Lifecycle: Request camera on mount, stop stream on destroy
 	onMount(requestCamera);
+	onMount(loadClassifier);
 
 	onDestroy(() => {
 		if (mediaStream) {
