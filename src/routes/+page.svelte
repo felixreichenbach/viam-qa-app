@@ -41,7 +41,11 @@
 			return;
 		}
 		try {
-			const blob = await imageCapture.takePhoto();
+			const settings: PhotoSettings = {
+				imageWidth: 1920,
+				imageHeight: 1080
+			};
+			const blob = await imageCapture.takePhoto(settings);
 			capturedSnapshot = await getSnapshot(blob);
 		} catch (err) {
 			console.error('Error capturing photo:', err);
