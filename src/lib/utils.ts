@@ -51,6 +51,8 @@ export function rotateImageCounterClock90(image: HTMLImageElement): HTMLCanvasEl
 
 export async function getSnapshot(blob: Blob): Promise<string> {
 	const imageBitmap = await createImageBitmap(blob);
+	console.log(`Photo resolution: ${imageBitmap.width}x${imageBitmap.height}`);
+	console.log(`File size: ${blob.size} bytes`);
 	// Create a temporary canvas
 	const canvas = document.createElement('canvas');
 	canvas.width = imageBitmap.width;
