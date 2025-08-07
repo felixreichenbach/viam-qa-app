@@ -1,20 +1,12 @@
-// Import @tensorflow-models/tasks.
 import * as tfTask from '@tensorflow-models/tasks';
-import type { ODCustomModelTFLite } from '@tensorflow-models/tasks/dist/tasks/object_detection/custom_model_tflite';
+import { resizeImageTo256 } from './utils';
 
 let model: tfTask.ICCustomModelTFLite | null = null;
-//let model: ODCustomModelTFLite | null = null;
 
 export async function loadClassifier() {
 	model = await tfTask.ImageClassification.CustomModel.TFLite.load({
 		model: 'model.tflite'
 	});
-
-	/*
-	model1 = await tfTask.ObjectDetection.CustomModel.TFLite.load({
-		model: 'model/model.tflite'
-	});
-	*/
 }
 
 export async function classifyImage(image: HTMLImageElement) {
@@ -24,6 +16,8 @@ export async function classifyImage(image: HTMLImageElement) {
 	if (!model) {
 		throw new Error('Model not loaded');
 	}
-	const result = await model.predict(image);
+	const preprocessed = resizeImageTo256(image);
+	console.log('Preprocessed image size:', preprocessed.width, 'x', preprocessed.height);
+	const result = await model.predict(preprocessed);
 	return result;
 }

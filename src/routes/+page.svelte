@@ -2,15 +2,16 @@
 	import { onMount, onDestroy } from 'svelte';
 	import VideoFeed from '$lib/VideoFeed.svelte';
 	import SnapshotPreview from '$lib/SnapshotPreview.svelte';
-	import { classifyImage } from '$lib/classifier';
+	import { classifyImage, loadClassifier } from '$lib/classifier';
 	import { getViamClient, uploadData } from '$lib/viamclient';
+	import { getSnapshot } from '$lib/utils';
 
 	let mediaStream: MediaStream | null = null;
-	let videoElement: HTMLVideoElement; // Type as HTMLVideoElement (non-nullable)
-	let capturedSnapshot: string | null = null; // Stores the data URL of the captured image
+	let videoElement: HTMLVideoElement;
+	let capturedSnapshot: string = '';
+	let imageCapture: ImageCapture | null = null;
 	let error: string | null = null;
 
-	// Define the interface for classification results
 	interface Class {
 		className: string;
 		score: number;
@@ -20,43 +21,32 @@
 	let disabled = false; // Control button state
 	let user_classification: string = '';
 
-	// Function to request camera access
 	async function requestCamera(): Promise<void> {
 		try {
 			mediaStream = await navigator.mediaDevices.getUserMedia({
 				video: { facingMode: 'environment' }
 			});
+			const track = mediaStream.getVideoTracks()[0];
+			imageCapture = new ImageCapture(track);
 			error = null;
 		} catch (err: any) {
-			// Type 'err' as 'any' or 'DOMException' if more specific
 			console.error('Error accessing camera:', err);
 			error = 'Could not access camera. Please check permissions.';
 		}
 	}
 
-	// CORE CONTROL FUNCTION: Captures a snapshot from the video stream
-	async function captureSnapshot(): Promise<void> {
-		if (!videoElement) {
-			console.warn('Video element not available yet.');
+	async function onTakePhotoButtonClick() {
+		if (!imageCapture) {
+			console.warn('ImageCapture is not initialized.');
 			return;
 		}
-
-		// Create a temporary canvas
-		const canvas = document.createElement('canvas');
-		canvas.width = videoElement.videoWidth;
-		canvas.height = videoElement.videoHeight;
-		const context = canvas.getContext('2d');
-
-		if (!context) {
-			console.error('Could not get 2D rendering context for canvas.');
-			return;
+		try {
+			const blob = await imageCapture.takePhoto();
+			capturedSnapshot = await getSnapshot(blob);
+		} catch (err) {
+			console.error('Error capturing photo:', err);
+			error = 'Could not capture photo. Please try again.';
 		}
-		// Draw the current video frame onto the canvas
-		context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-		// Get the image data URL
-		capturedSnapshot = canvas.toDataURL('image/png');
-		// Clean up temporary canvas
-		canvas.remove();
 	}
 
 	// Run classification when capturedSnapshot changes
@@ -72,11 +62,11 @@
 					console.error('Error classifying image:', err);
 				});
 		};
-		img.src = capturedSnapshot; // Set the source to trigger loading
+		img.src = capturedSnapshot;
 	}
 
 	async function resetSnapshot(): Promise<void> {
-		capturedSnapshot = null;
+		capturedSnapshot = '';
 		classifications = [];
 		user_classification = '';
 	}
@@ -90,7 +80,6 @@
 		disabled = true; // Disable button to prevent multiple uploads
 		getViamClient()
 			.then(() => {
-				// Convert data URL to Uint8Array
 				if (!capturedSnapshot) {
 					throw new Error('No snapshot to upload');
 				}
@@ -104,8 +93,8 @@
 			})
 			.then((id) => {
 				console.log('Data uploaded with ID:', id);
-				resetSnapshot(); // Reset snapshot after upload
-				disabled = false; // Re-enable button after upload
+				resetSnapshot();
+				disabled = false;
 			})
 			.catch((err) => {
 				error = err;
@@ -124,8 +113,8 @@
 		return okScore > nokScore && unknownScore < 0.5;
 	}
 
-	// Lifecycle: Request camera on mount, stop stream on destroy
 	onMount(requestCamera);
+	onMount(loadClassifier);
 
 	onDestroy(() => {
 		if (mediaStream) {
@@ -175,7 +164,7 @@
 		</div>
 	{:else}
 		<VideoFeed stream={mediaStream} bind:videoElement />
-		<button on:click={captureSnapshot}> Capture Image </button>
+		<button on:click={onTakePhotoButtonClick}> Capture Image </button>
 	{/if}
 	<!--Uncomment if you want to display classifications
 	{#if classifications.length > 0}
